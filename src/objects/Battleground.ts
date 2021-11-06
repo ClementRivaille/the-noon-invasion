@@ -1,3 +1,5 @@
+import Invader from './Invader';
+
 const MARGIN = 30;
 export const NB_LANES = 15;
 
@@ -9,7 +11,11 @@ export default class Battleground {
   private localWidth: number;
   private laneWidth;
 
+  private lanesContent: Invader[][];
+
   constructor(game: Phaser.Scene, width: number, height: number) {
+    this.lanesContent = [...new Array(NB_LANES)].map(() => []);
+
     this.borders = game.physics.add.staticGroup();
     this.borders.add(game.add.zone(-100, height, 10, 100));
     this.borders.add(game.add.zone(width + 100, height, 10, 100));
@@ -36,5 +42,21 @@ export default class Battleground {
       this.laneWidth * Math.min(lane, NB_LANES - 1) +
       this.laneWidth / 2
     );
+  }
+
+  addToLane(lane: number, invader: Invader) {
+    this.lanesContent[lane].push(invader);
+  }
+  remove(invader: Invader) {
+    this.lanesContent[invader.lane] = this.lanesContent[invader.lane].filter(
+      (i) => i !== invader
+    );
+  }
+
+  isLaneOpen(laneIdx: number) {
+    console.log('eh?', this.lanesContent, laneIdx);
+    const lane = this.lanesContent[laneIdx];
+
+    return lane.length < 4 && !lane.some((invader) => invader.y < 45);
   }
 }

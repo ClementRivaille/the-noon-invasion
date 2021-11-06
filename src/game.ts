@@ -91,10 +91,18 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private addInvader() {
-    const lane = pickLane(
+    let lane = pickLane(
       GameScene.musicManager.bar,
       GameScene.musicManager.beat
     );
+    let trials = 0;
+    while (!GameScene.battleground.isLaneOpen(lane)) {
+      trials++;
+      if (trials > 5) {
+        return;
+      }
+      lane = pickLane(GameScene.musicManager.bar, GameScene.musicManager.beat);
+    }
     const invader = new Invader(this, lane);
     this.invaders.push(invader);
     GameScene.instruments.playNote(InstrumentType.invader, getLaneNote(lane));
@@ -112,6 +120,7 @@ export default class GameScene extends Phaser.Scene {
 
   private destroyInvader(invader: Invader) {
     invader.destroy();
+    GameScene.battleground.remove(invader);
     this.invaders = this.invaders.filter((i) => i !== invader);
   }
 

@@ -14,7 +14,7 @@ export default class Invader {
   public signals = new Signal<InvaderSignals>();
 
   private sprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
-  constructor(game: Phaser.Scene, lane: number) {
+  constructor(game: Phaser.Scene, public readonly lane: number) {
     this.sprite = game.physics.add.sprite(
       GameScene.battleground.getLaneCoord(lane),
       0,
@@ -25,6 +25,8 @@ export default class Invader {
     this.sprite.setOrigin(0.5, 0.5);
     this.sprite.setVelocityY(SPEED);
     this.sprite.setData(PARENT_KEY, this);
+
+    GameScene.battleground.addToLane(lane, this);
   }
 
   onFloorContact() {
@@ -38,6 +40,9 @@ export default class Invader {
 
   get x() {
     return this.sprite.x;
+  }
+  get y() {
+    return this.sprite.y;
   }
 
   public destroy() {

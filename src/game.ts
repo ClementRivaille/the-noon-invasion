@@ -1,10 +1,11 @@
-import Battleground, { NB_LANES } from './objects/Battleground';
+import Battleground from './objects/Battleground';
 import Invader, { InvaderSignals } from './objects/invader';
 import InvaderScheduler, {
   InvaderSchedulerSignals,
 } from './objects/InvaderScheduler';
 import Ship from './objects/Ship';
 import CollisionManager from './utils/collisions';
+import { pickLane } from './utils/harmony';
 import Instruments, { getLaneNote, InstrumentType } from './utils/instruments';
 import MusicManager, { MusicManagerSignals } from './utils/musicManager';
 import { loadResources } from './utils/resources';
@@ -61,7 +62,7 @@ export default class GameScene extends Phaser.Scene {
     GameScene.musicManager.signals.subscribe(MusicManagerSignals.beat, () => {
       this.onBeat();
     });
-    this.invaderScheduler.scheduleNextInvader();
+    //this.invaderScheduler.scheduleNextInvader();
   }
 
   update() {
@@ -89,7 +90,10 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private addInvader() {
-    const lane = Math.floor(Math.random() * NB_LANES);
+    const lane = pickLane(
+      GameScene.musicManager.bar,
+      GameScene.musicManager.beat
+    );
     const invader = new Invader(this, lane);
     this.invaders.push(invader);
     GameScene.instruments.playNote(InstrumentType.invader, getLaneNote(lane));
@@ -97,7 +101,7 @@ export default class GameScene extends Phaser.Scene {
       this.destroyInvader(i)
     );
 
-    this.invaderScheduler.scheduleNextInvader();
+    //this.invaderScheduler.scheduleNextInvader();
   }
 
   private destroyInvader(invader: Invader) {

@@ -77,7 +77,6 @@ export default class Instruments {
             baseUrl: './samples/shoot/',
             onload: () => resolve(),
             release: 0.1,
-            volume: 2,
           }).toDestination())
       )
     );
@@ -95,7 +94,7 @@ export default class Instruments {
             },
             baseUrl: './samples/kill/',
             onload: () => resolve(),
-            volume: -3,
+            volume: -4,
           }).toDestination())
       )
     );

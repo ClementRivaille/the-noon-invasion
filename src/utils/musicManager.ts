@@ -10,10 +10,13 @@ export enum MusicManagerSignals {
   triplet = 'stripler',
 }
 
+const BPM = 90;
 const BAR_SIGNATURE = 6;
+export const BEAT_LENGTH = 60 / BPM;
 
 export default class MusicManager {
   private orchestre: Orchestre;
+  private context: AudioContext;
 
   public signals = new Signal<MusicManagerSignals>();
   public load: Promise<void>;
@@ -23,7 +26,8 @@ export default class MusicManager {
   public bar = 0;
 
   constructor() {
-    this.orchestre = new Orchestre(90 * BAR_SIGNATURE);
+    this.context = new AudioContext();
+    this.orchestre = new Orchestre(BPM * BAR_SIGNATURE, this.context);
     this.load = this.orchestre.addPlayers([
       {
         name: MusicRes.drum_test,
@@ -51,6 +55,10 @@ export default class MusicManager {
     this.orchestre.addListener(() => this.onBar(), BAR_SIGNATURE * 4, {
       absolute: true,
     });
+  }
+
+  get currentTime() {
+    return this.context.currentTime;
   }
 
   private onTriplet() {

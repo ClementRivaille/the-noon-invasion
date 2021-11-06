@@ -11,6 +11,7 @@
   "author": "Itooh",
   "license": "ISC",
   "dependencies": {
+    "@tonaljs/tonal": "^4.6.5",
     "orchestre-js": "^2.0.2",
     "phaser": "^3.55.2",
     "tone": "^14.7.77"

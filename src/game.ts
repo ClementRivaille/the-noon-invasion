@@ -2,6 +2,7 @@ import Battleground, { NB_LANES } from './objects/Battleground';
 import Invader, { InvaderSignals } from './objects/invader';
 import Ship from './objects/Ship';
 import CollisionManager from './utils/collisions';
+import Instruments, { getLaneNote, InstrumentType } from './utils/instruments';
 import MusicManager, { MusicManagerSignals } from './utils/musicManager';
 import { loadResources } from './utils/resources';
 
@@ -11,11 +12,12 @@ export default class GameScene extends Phaser.Scene {
   private ship: Ship;
   private invaders: Invader[] = [];
 
-  private debugText: Phaser.GameObjects.Text;
+  public debugText: Phaser.GameObjects.Text;
 
   static battleground: Battleground;
   static musicManager: MusicManager;
   static collisionManager: CollisionManager;
+  static instruments: Instruments;
 
   preload() {
     loadResources(this);
@@ -24,6 +26,7 @@ export default class GameScene extends Phaser.Scene {
   async create() {
     this.camera = this.cameras.main;
     GameScene.musicManager = new MusicManager();
+    GameScene.instruments = new Instruments();
     GameScene.battleground = new Battleground(
       this,
       this.camera.width,
@@ -38,7 +41,11 @@ export default class GameScene extends Phaser.Scene {
     });
     this.debugText.setAlpha(0);
 
-    await GameScene.musicManager.load;
+    // LOADING
+    await Promise.all([
+      GameScene.musicManager.load,
+      GameScene.instruments.load,
+    ]);
     GameScene.musicManager.start();
 
     GameScene.musicManager.signals.subscribe(
@@ -52,7 +59,9 @@ export default class GameScene extends Phaser.Scene {
   update() {
     this.ship.update();
 
-    this.debugText.setText(`${this.invaders.length}`);
+    // this.debugText.setText(
+    //   `${GameScene.battleground.getLane(this.ship.sprite.x)}`
+    // );
   }
 
   onLaserHitInvader(
@@ -60,6 +69,10 @@ export default class GameScene extends Phaser.Scene {
     invader: Invader
   ) {
     laser.destroy();
+    GameScene.instruments.playNote(
+      InstrumentType.kill,
+      getLaneNote(GameScene.battleground.getLane(invader.x))
+    );
     this.destroyInvader(invader);
   }
   onInvaderHitShip(invader: Invader, _ship: Ship) {
@@ -68,8 +81,10 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private onBeat(_beat: number) {
-    const invader = new Invader(this, Math.floor(Math.random() * NB_LANES));
+    const lane = Math.floor(Math.random() * NB_LANES);
+    const invader = new Invader(this, lane);
     this.invaders.push(invader);
+    GameScene.instruments.playNote(InstrumentType.invader, getLaneNote(lane));
     invader.signals.subscribe(InvaderSignals.invade, (i: Invader) =>
       this.destroyInvader(i)
     );

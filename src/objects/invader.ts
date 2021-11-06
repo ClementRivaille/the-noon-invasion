@@ -30,6 +30,10 @@ export default class Invader {
     this.signals.emit(InvaderSignals.invade, this);
   }
 
+  get x() {
+    return this.sprite.x;
+  }
+
   public destroy() {
     GameScene.collisionManager.groups[CollisionGroup.Invaders].remove(
       this.sprite

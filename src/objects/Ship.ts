@@ -1,5 +1,10 @@
 import GameScene from '../game';
 import { CollisionGroup, PARENT_KEY } from '../utils/collisions';
+import {
+  getLaneNote,
+  getNoteAround,
+  InstrumentType,
+} from '../utils/instruments';
 import { MusicManagerSignals } from '../utils/musicManager';
 import { SpritesRes } from '../utils/resources';
 
@@ -13,7 +18,7 @@ export default class Ship {
 
   private shooting = false;
 
-  constructor(private game: Phaser.Scene, x: number, y: number) {
+  constructor(private game: GameScene, x: number, y: number) {
     this.sprite = game.physics.add.sprite(x, y, SpritesRes.ghost, 0);
     GameScene.collisionManager.groups[CollisionGroup.Ship].add(this.sprite);
     this.sprite.setOrigin(0.5, 0.5);
@@ -61,6 +66,14 @@ export default class Ship {
 
       const laserBody = laser.body as Phaser.Physics.Arcade.Body;
       laserBody.setVelocityY(-LASER_SPEED);
+
+      const currentLane = GameScene.battleground.getLane(this.sprite.x);
+      const note = getNoteAround(
+        getLaneNote(currentLane),
+        -2 + Math.round(Math.random() * 4)
+      );
+      this.game.debugText.setText(note);
+      GameScene.instruments.playNote(InstrumentType.shoot, note);
     }
   }
 }

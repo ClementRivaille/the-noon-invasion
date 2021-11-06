@@ -19,7 +19,7 @@ export default class Battleground {
     this.laneWidth = this.localWidth / NB_LANES;
 
     game.physics.world.enable(this.floor, Phaser.Physics.Arcade.STATIC_BODY);
-    this.roof = game.add.zone(width / 2, 20, -50, 20);
+    this.roof = game.add.zone(width / 2, -50, width, 20);
     game.physics.world.enable(this.roof, Phaser.Physics.Arcade.STATIC_BODY);
   }
 

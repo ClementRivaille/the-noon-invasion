@@ -97,14 +97,14 @@ export default class Ship {
           this.sprite.x,
           this.sprite.y,
           40,
-          5,
+          15,
           0xee1111
         );
         this.game.physics.world.enable(laser);
         GameScene.collisionManager.groups[CollisionGroup.Laser].add(laser);
 
         const laserBody = laser.body as Phaser.Physics.Arcade.Body;
-        laserBody.setVelocityX(LASER_SPEED * 1.5 * direction);
+        laserBody.setVelocityX(LASER_SPEED * 2 * direction);
 
         const currentLane = GameScene.battleground.getLane(this.sprite.x);
         const note = getNoteAround(

@@ -30,8 +30,9 @@ export default class CollisionManager {
     this.game.physics.add.collider(
       this.groups[CollisionGroup.Invaders],
       GameScene.battleground.floor,
-      (_object, invader) =>
-        (invader.getData(PARENT_KEY) as Invader).onFloorContact()
+      (_object, invader) => {
+        (invader.getData(PARENT_KEY) as Invader).onFloorContact();
+      }
     );
 
     this.game.physics.add.collider(
@@ -48,7 +49,16 @@ export default class CollisionManager {
     this.game.physics.add.collider(
       this.groups[CollisionGroup.Laser],
       GameScene.battleground.roof,
-      (_object, laser) => laser.destroy()
+      (_object, laser) => {
+        laser.destroy();
+      }
+    );
+    this.game.physics.add.collider(
+      this.groups[CollisionGroup.Laser],
+      GameScene.battleground.borders,
+      (laser) => {
+        laser.destroy();
+      }
     );
   }
 }

@@ -1,23 +1,37 @@
+import GameScene from '../game';
+import { CollisionGroup, PARENT_KEY } from '../utils/collisions';
+import { MusicManagerSignals } from '../utils/musicManager';
 import { SpritesRes } from '../utils/resources';
 
 const SPEED = 800;
+const LASER_SPEED = 1000;
 
 export default class Ship {
   public sprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
 
-  constructor(game: Phaser.Scene, x: number, y: number) {
+  private shooting = false;
+
+  constructor(private game: Phaser.Scene, x: number, y: number) {
     this.sprite = game.physics.add.sprite(x, y, SpritesRes.ghost, 0);
+    GameScene.collisionManager.groups[CollisionGroup.Ship].add(this.sprite);
     this.sprite.setOrigin(0.5, 0.5);
     this.sprite.scale = 1.6; // TMP
     this.sprite.setCollideWorldBounds(true);
+    this.sprite.setDepth(5);
+    this.sprite.setData(PARENT_KEY, this);
 
     this.cursors = game.input.keyboard.createCursorKeys();
+
+    GameScene.musicManager.signals.subscribe(MusicManagerSignals.triplet, () =>
+      this.shoot()
+    );
   }
 
   update() {
     this.move();
+    this.shooting = this.cursors.up.isDown;
   }
 
   private move() {
@@ -31,5 +45,22 @@ export default class Ship {
 
     const velocity = direction.normalize().scale(SPEED);
     this.sprite.setVelocity(velocity.x, 0);
+  }
+
+  private shoot() {
+    if (this.shooting) {
+      const laser = this.game.add.rectangle(
+        this.sprite.x,
+        this.sprite.y,
+        5,
+        40,
+        0xee1111
+      );
+      this.game.physics.world.enable(laser);
+      GameScene.collisionManager.groups[CollisionGroup.Laser].add(laser);
+
+      const laserBody = laser.body as Phaser.Physics.Arcade.Body;
+      laserBody.setVelocityY(-LASER_SPEED);
+    }
   }
 }

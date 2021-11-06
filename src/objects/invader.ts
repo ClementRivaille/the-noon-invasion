@@ -1,4 +1,5 @@
 import GameScene from '../game';
+import { CollisionGroup, PARENT_KEY } from '../utils/collisions';
 import { SpritesRes } from '../utils/resources';
 import Signal from '../utils/signal';
 
@@ -19,20 +20,20 @@ export default class Invader {
       SpritesRes.invader,
       0
     );
+    GameScene.collisionManager.groups[CollisionGroup.Invaders].add(this.sprite);
     this.sprite.setOrigin(0.5, 0.5);
     this.sprite.setVelocityY(SPEED);
+    this.sprite.setData(PARENT_KEY, this);
+  }
 
-    // Collision
-    game.physics.add.collider(GameScene.battleground.floor, this.sprite, () =>
-      this.onFloorContact()
-    );
+  onFloorContact() {
+    this.signals.emit(InvaderSignals.invade, this);
   }
 
   public destroy() {
+    GameScene.collisionManager.groups[CollisionGroup.Invaders].remove(
+      this.sprite
+    );
     this.sprite.destroy();
-  }
-
-  private onFloorContact() {
-    this.signals.emit(InvaderSignals.invade, this);
   }
 }

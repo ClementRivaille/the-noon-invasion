@@ -4,6 +4,7 @@ export const NB_LANES = 15;
 export default class Battleground {
   public borders: Phaser.Physics.Arcade.StaticGroup;
   public floor: Phaser.GameObjects.Zone;
+  public roof: Phaser.GameObjects.Zone;
 
   private localWidth: number;
   private laneWidth;
@@ -18,6 +19,8 @@ export default class Battleground {
 
     this.floor = game.add.zone(width / 2, height, width, 20);
     game.physics.world.enable(this.floor, Phaser.Physics.Arcade.STATIC_BODY);
+    this.roof = game.add.zone(width / 2, 20, -50, 20);
+    game.physics.world.enable(this.roof, Phaser.Physics.Arcade.STATIC_BODY);
   }
 
   getLane(x: number): number {
@@ -28,6 +31,10 @@ export default class Battleground {
   }
 
   getLaneCoord(lane: number) {
-    return MARGIN + this.laneWidth * lane + this.laneWidth / 2;
+    return (
+      MARGIN +
+      this.laneWidth * Math.min(lane, NB_LANES - 1) +
+      this.laneWidth / 2
+    );
   }
 }

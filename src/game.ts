@@ -1,5 +1,8 @@
 import Battleground, { NB_LANES } from './objects/Battleground';
 import Invader, { InvaderSignals } from './objects/invader';
+import InvaderScheduler, {
+  InvaderSchedulerSignals,
+} from './objects/InvaderScheduler';
 import Ship from './objects/Ship';
 import CollisionManager from './utils/collisions';
 import Instruments, { getLaneNote, InstrumentType } from './utils/instruments';
@@ -11,6 +14,7 @@ export default class GameScene extends Phaser.Scene {
 
   private ship: Ship;
   private invaders: Invader[] = [];
+  private invaderScheduler: InvaderScheduler;
 
   public debugText: Phaser.GameObjects.Text;
 
@@ -36,6 +40,12 @@ export default class GameScene extends Phaser.Scene {
 
     this.ship = new Ship(this, this.camera.centerX, this.camera.height - 50);
 
+    this.invaderScheduler = new InvaderScheduler();
+    this.invaderScheduler.signals.subscribe(
+      InvaderSchedulerSignals.sendInvader,
+      () => this.addInvader()
+    );
+
     this.debugText = this.add.text(100, 100, 'DEBUG', {
       fontSize: '30px',
     });
@@ -48,12 +58,10 @@ export default class GameScene extends Phaser.Scene {
     ]);
     GameScene.musicManager.start();
 
-    GameScene.musicManager.signals.subscribe(
-      MusicManagerSignals.beat,
-      (beat: number) => {
-        this.onBeat(beat);
-      }
-    );
+    GameScene.musicManager.signals.subscribe(MusicManagerSignals.beat, () => {
+      this.onBeat();
+    });
+    this.invaderScheduler.scheduleNextInvader();
   }
 
   update() {
@@ -80,7 +88,7 @@ export default class GameScene extends Phaser.Scene {
     this.camera.shake();
   }
 
-  private onBeat(_beat: number) {
+  private addInvader() {
     const lane = Math.floor(Math.random() * NB_LANES);
     const invader = new Invader(this, lane);
     this.invaders.push(invader);
@@ -88,10 +96,14 @@ export default class GameScene extends Phaser.Scene {
     invader.signals.subscribe(InvaderSignals.invade, (i: Invader) =>
       this.destroyInvader(i)
     );
+
+    this.invaderScheduler.scheduleNextInvader();
   }
 
   private destroyInvader(invader: Invader) {
     invader.destroy();
     this.invaders = this.invaders.filter((i) => i !== invader);
   }
+
+  private onBeat() {}
 }

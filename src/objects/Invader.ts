@@ -3,7 +3,7 @@ import { CollisionGroup, PARENT_KEY } from '../utils/collisions';
 import { SpritesRes } from '../utils/resources';
 import Signal from '../utils/signal';
 
-const SPEED = 200;
+const SPEED = 100;
 const ATTACK_SPEED = 1400;
 
 export enum InvaderSignals {

@@ -1,5 +1,5 @@
 import Battleground from './objects/Battleground';
-import Invader, { InvaderSignals } from './objects/invader';
+import Invader, { InvaderSignals } from './objects/Invader';
 import InvaderScheduler, {
   InvaderSchedulerSignals,
 } from './objects/InvaderScheduler';
@@ -50,7 +50,7 @@ export default class GameScene extends Phaser.Scene {
     this.debugText = this.add.text(100, 100, 'DEBUG', {
       fontSize: '30px',
     });
-    this.debugText.setAlpha(0);
+    // this.debugText.setAlpha(0);
 
     // LOADING
     await Promise.all([
@@ -84,6 +84,7 @@ export default class GameScene extends Phaser.Scene {
     );
     this.destroyInvader(invader);
   }
+
   onInvaderHitShip(invader: Invader, _ship: Ship) {
     this.destroyInvader(invader);
     this.camera.shake();
@@ -98,10 +99,15 @@ export default class GameScene extends Phaser.Scene {
     this.invaders.push(invader);
     GameScene.instruments.playNote(InstrumentType.invader, getLaneNote(lane));
     invader.signals.subscribe(InvaderSignals.invade, (i: Invader) =>
-      this.destroyInvader(i)
+      this.onInvade(i)
     );
 
     //this.invaderScheduler.scheduleNextInvader();
+  }
+
+  private onInvade(invader: Invader) {
+    // TODO: lower health or whatever
+    this.destroyInvader(invader);
   }
 
   private destroyInvader(invader: Invader) {

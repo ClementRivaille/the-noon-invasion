@@ -4,6 +4,7 @@ import { SpritesRes } from '../utils/resources';
 import Signal from '../utils/signal';
 
 const SPEED = 200;
+const ATTACK_SPEED = 1400;
 
 export enum InvaderSignals {
   invade = 'invade',
@@ -27,7 +28,12 @@ export default class Invader {
   }
 
   onFloorContact() {
+    this.sprite.setVelocityY(0);
     this.signals.emit(InvaderSignals.invade, this);
+  }
+
+  attack(direction: -1 | 1) {
+    this.sprite.setVelocityX(direction * ATTACK_SPEED);
   }
 
   get x() {

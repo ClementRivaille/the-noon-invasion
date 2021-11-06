@@ -31,7 +31,6 @@ export function getNoteAround(note: string, interval: number): string {
     newOctave += 1;
     newIndex = newIndex % SCALE.length;
   }
-  console.log('NEW IDX', newIndex, 'and octave', newOctave);
   return `${SCALE[newIndex]}${newOctave}`;
 }
 

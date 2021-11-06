@@ -1,5 +1,5 @@
 import GameScene from '../game';
-import Invader from '../objects/invader';
+import Invader from '../objects/Invader';
 
 export enum CollisionGroup {
   Invaders,

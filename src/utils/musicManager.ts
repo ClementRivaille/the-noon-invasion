@@ -61,6 +61,10 @@ export default class MusicManager {
     return this.context.currentTime;
   }
 
+  get metronome() {
+    return this.orchestre.metronome;
+  }
+
   private onTriplet() {
     this.triplet = (this.triplet + 1) % 3;
     this.signals.emit(MusicManagerSignals.triplet, this.triplet);

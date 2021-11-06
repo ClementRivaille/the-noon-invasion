@@ -11,13 +11,13 @@ export default class Battleground {
 
   constructor(game: Phaser.Scene, width: number, height: number) {
     this.borders = game.physics.add.staticGroup();
-    this.borders.add(game.add.zone(0, height / 2, MARGIN * 2, height));
-    this.borders.add(game.add.zone(width, height / 2, MARGIN * 2, height));
+    this.borders.add(game.add.zone(-100, height, 10, 100));
+    this.borders.add(game.add.zone(width + 100, height, 10, 100));
+    this.floor = game.add.zone(width / 2, height + 100, width, 20);
 
     this.localWidth = width - 2 * MARGIN;
     this.laneWidth = this.localWidth / NB_LANES;
 
-    this.floor = game.add.zone(width / 2, height, width, 20);
     game.physics.world.enable(this.floor, Phaser.Physics.Arcade.STATIC_BODY);
     this.roof = game.add.zone(width / 2, 20, -50, 20);
     game.physics.world.enable(this.roof, Phaser.Physics.Arcade.STATIC_BODY);

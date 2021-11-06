@@ -1,5 +1,5 @@
 const MARGIN = 30;
-const NBZONES = 15;
+const NB_LANES = 15;
 
 export default class Battleground {
   public borders: Phaser.Physics.Arcade.StaticGroup;
@@ -13,11 +13,11 @@ export default class Battleground {
     this.localWidth = width - 2 * MARGIN;
   }
 
-  getZone(x: number): number {
+  getLane(x: number): number {
     if (x < MARGIN) return 0;
-    if (x > this.localWidth + MARGIN) return NBZONES - 1;
+    if (x > this.localWidth + MARGIN) return NB_LANES - 1;
 
-    const zoneChunk = this.localWidth / NBZONES;
+    const zoneChunk = this.localWidth / NB_LANES;
     return Math.floor((x - MARGIN) / zoneChunk);
   }
 }

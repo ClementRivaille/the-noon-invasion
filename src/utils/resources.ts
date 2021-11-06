@@ -20,6 +20,11 @@ const spritesDimensions = new Map<
   ],
 ]);
 
+export enum MusicRes {
+  drum_test = 'drum_test',
+  bass_test = 'bass_test',
+}
+
 export function loadResources(scene: Phaser.Scene) {
   for (const key of spritesUrls.keys()) {
     scene.load.spritesheet(

@@ -1,9 +1,12 @@
 const MARGIN = 30;
-const NB_LANES = 15;
+export const NB_LANES = 15;
 
 export default class Battleground {
   public borders: Phaser.Physics.Arcade.StaticGroup;
+  public floor: Phaser.GameObjects.Zone;
+
   private localWidth: number;
+  private laneWidth;
 
   constructor(game: Phaser.Scene, width: number, height: number) {
     this.borders = game.physics.add.staticGroup();
@@ -11,13 +14,20 @@ export default class Battleground {
     this.borders.add(game.add.zone(width, height / 2, MARGIN * 2, height));
 
     this.localWidth = width - 2 * MARGIN;
+    this.laneWidth = this.localWidth / NB_LANES;
+
+    this.floor = game.add.zone(width / 2, height, width, 20);
+    game.physics.world.enable(this.floor, Phaser.Physics.Arcade.STATIC_BODY);
   }
 
   getLane(x: number): number {
     if (x < MARGIN) return 0;
     if (x > this.localWidth + MARGIN) return NB_LANES - 1;
 
-    const zoneChunk = this.localWidth / NB_LANES;
-    return Math.floor((x - MARGIN) / zoneChunk);
+    return Math.floor((x - MARGIN) / this.laneWidth);
+  }
+
+  getLaneCoord(lane: number) {
+    return MARGIN + this.laneWidth * lane + this.laneWidth / 2;
   }
 }

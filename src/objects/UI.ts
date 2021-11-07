@@ -60,6 +60,10 @@ export default class UI {
     this.gameOver.setAlpha(1);
     this.scores.setAlpha(1);
     this.scores.setText(`Scores:\nLast - ${score}\nBest - ${best}`);
+    this.title.setAlpha(0.4);
+    this.title.setScale(0.7);
+    this.pressStart.setText('Press Enter to try again');
+    this.pressStart.setAlpha(1);
   }
 
   updateContinues(continuesLeft: number) {
@@ -73,10 +77,10 @@ export default class UI {
     this.loading.setAlpha(0);
 
     // Title Screen
-    this.title = this.game.add.text(50, 50, 'THE NOON\n INVASION', {
+    this.title = this.game.add.text(50, 50, 'THE NOON\nINVASION', {
       fontFamily: Font.uroob,
       fontSize: '250px',
-      align: 'left',
+      align: 'right',
       color: FONT_COLOR,
     });
     this.title.setOrigin(0);
@@ -121,7 +125,7 @@ export default class UI {
     this.gameOver.setAlpha(0);
     this.scores = this.game.add.text(
       width / 2,
-      height - 200,
+      height - 240,
       'Scores:\nLast - 000\nBest - 000',
       {
         ...DEFAULT_STYLE,

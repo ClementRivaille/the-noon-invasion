@@ -90,13 +90,7 @@ export default class Ship {
     this.active = true;
 
     // Animate
-    this.sprite.setScale(PIXEL_SCALE * 0.4);
-    this.game.tweens.add({
-      targets: [this.sprite],
-      scale: PIXEL_SCALE,
-      duration: 150,
-      ease: 'Back.easeOut',
-    });
+    this.enterAnimation();
   }
 
   async onHitInvader() {
@@ -118,6 +112,7 @@ export default class Ship {
     this.active = true;
     this.sprite.setAlpha(1);
     this.sprite.setY(this.y);
+    this.enterAnimation();
 
     // Blink
     let nbBlinks = 0;
@@ -196,6 +191,16 @@ export default class Ship {
 
   private setSideOffBeat() {
     this.sideOffBeat = (GameScene.musicManager.beat + 1) % 2;
+  }
+
+  private enterAnimation() {
+    this.sprite.setScale(PIXEL_SCALE * 0.4);
+    this.game.tweens.add({
+      targets: [this.sprite],
+      scale: PIXEL_SCALE,
+      duration: 150,
+      ease: 'Back.easeOut',
+    });
   }
 
   // private clearTweens() {

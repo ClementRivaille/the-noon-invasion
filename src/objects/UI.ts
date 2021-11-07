@@ -1,8 +1,10 @@
 import { Font, loadFonts } from '../utils/fonts';
+import { PIXEL_SCALE, SpritesRes } from '../utils/resources';
 
 const SMALL = 12;
 const MEDIUM = 40;
 const LARGE = 150;
+const UI_SCROLL = 0.6;
 
 const FONT_COLOR = '#ffffff66';
 
@@ -20,6 +22,7 @@ export default class UI {
   private pressStart: Phaser.GameObjects.Text;
 
   private score: Phaser.GameObjects.Text;
+  private continues: Phaser.GameObjects.Sprite[] = [];
 
   private gameOver: Phaser.GameObjects.Text;
   private scores: Phaser.GameObjects.Text;
@@ -47,6 +50,9 @@ export default class UI {
     });
     this.score.setText('000000');
     this.score.setAlpha(0.3);
+    for (const sprite of this.continues) {
+      sprite.setAlpha(0.2);
+    }
   }
 
   showGameOver(score: number, best: number) {
@@ -54,6 +60,12 @@ export default class UI {
     this.gameOver.setAlpha(1);
     this.scores.setAlpha(1);
     this.scores.setText(`Scores:\nLast - ${score}\nBest - ${best}`);
+  }
+
+  updateContinues(continuesLeft: number) {
+    for (let i = 0; i < this.continues.length; i++) {
+      this.continues[i].setAlpha(i < continuesLeft ? 0.2 : 0);
+    }
   }
 
   private async init(width: number, height: number) {
@@ -85,7 +97,19 @@ export default class UI {
     });
     this.score.setAlpha(0);
     this.score.setOrigin(1, 1);
-    this.score.setScrollFactor(0.6);
+    this.score.scrollFactorX = UI_SCROLL;
+    // Ingame UI
+    for (let x = 0; x < 3; x++) {
+      const continueSprite = this.game.add.sprite(
+        40 + x * 40,
+        height - 50,
+        SpritesRes.continue
+      );
+      continueSprite.setScale(PIXEL_SCALE / 2);
+      continueSprite.scrollFactorX = UI_SCROLL;
+      continueSprite.setAlpha(0);
+      this.continues.push(continueSprite);
+    }
 
     // Game Over screen
     this.gameOver = this.game.add.text(width / 2, 300, 'GAME OVER', {

@@ -61,6 +61,9 @@ export default class GameScene extends Phaser.Scene {
     this.ship.signals.subscribe(ShipSignals.die, (continues: number) =>
       this.onDie(continues)
     );
+    this.ship.signals.subscribe(ShipSignals.die, (continues: number) =>
+      this.ui.updateContinues(continues)
+    );
 
     this.invaderScheduler = new InvaderScheduler();
     this.invaderScheduler.signals.subscribe(
@@ -118,7 +121,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   async onDie(continues: number) {
-    this.camera.shake(0.2);
+    this.camera.shake(100, 0.01);
 
     this.invaderScheduler.setActive(false);
     while (this.invaders.length > 0) {

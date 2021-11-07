@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import GameScene from './game';
 
 const GameConfig: Phaser.Types.Core.GameConfig = {
-  title: 'VGLab 2021',
+  title: 'The Noon Invasion',
   version: '2.0',
   width: 1280,
   height: 720,
@@ -27,7 +27,7 @@ const GameConfig: Phaser.Types.Core.GameConfig = {
     // `fullscreenTarget` must be defined for phones to not have
     // a small margin during fullscreen.
     fullscreenTarget: 'app',
-    expandParent: false,
+    expandParent: true,
   },
 };
 

@@ -17,21 +17,22 @@ export default class Invader {
   public signals = new Signal<InvaderSignals>();
 
   private sprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+  private active = false;
   static particlesEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
 
   constructor(private game: Phaser.Scene, public readonly lane: number) {
     this.sprite = game.physics.add.sprite(
       GameScene.battleground.getLaneCoord(lane),
-      0,
+      20,
       SpritesRes.invader,
       0
     );
-    GameScene.collisionManager.groups[CollisionGroup.Invaders].add(this.sprite);
+
     this.sprite.setOrigin(0.5, 0.5);
-    this.sprite.setVelocityY(SPEED);
     this.sprite.setData(PARENT_KEY, this);
-    this.sprite.setScale(PIXEL_SCALE);
     this.sprite.setTint(INVADER_COLOR);
+
+    this.sprite.setVelocityY(SPEED);
 
     GameScene.battleground.addToLane(lane, this);
 
@@ -40,6 +41,18 @@ export default class Invader {
       MusicManagerSignals.beat,
       this.animate
     );
+
+    // Animation on start
+    this.sprite.setScale(0.2);
+    this.sprite.setAlpha(0.3);
+    this.game.tweens.add({
+      targets: [this.sprite],
+      scale: PIXEL_SCALE,
+      alpha: 1,
+      duration: 250,
+      ease: 'Back.easeOut',
+      onComplete: () => this.enableBody(),
+    });
 
     // Particles
     if (!Invader.particlesEmitter) {
@@ -80,8 +93,15 @@ export default class Invader {
     this.sprite.destroy();
   }
 
+  private enableBody() {
+    GameScene.collisionManager.groups[CollisionGroup.Invaders].add(this.sprite);
+    this.sprite.setVelocityY(SPEED);
+    this.active = true;
+  }
+
   private animate() {
     this.sprite.setFrame(parseInt(this.sprite.frame.name, 10) === 0 ? 1 : 0);
+    if (!this.active) return;
     this.game.tweens.add({
       targets: [this.sprite],
       scale: this.sprite.scale * 1.1,

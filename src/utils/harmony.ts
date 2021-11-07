@@ -1,4 +1,5 @@
 import { NB_LANES } from '../objects/Battleground';
+import { getLaneNote } from './instruments';
 
 interface Harmony {
   strong: number[];
@@ -40,4 +41,30 @@ export function pickLane(bar: number, beat: number) {
     randomNote = Math.floor(NB_LANES * Math.random());
   }
   return randomNote;
+}
+
+export function getChord(bar: number) {
+  const harmony = barsHarmonies[bar];
+  const notes = [0, 1, 2].map((i) => {
+    const lane = harmony.strong[i];
+    return getLaneNote(lane);
+  });
+  return notes;
+}
+
+export function getStrongNotes(bar: number, amount: number) {
+  const lanes = barsHarmonies[bar].strong;
+
+  const randomNotes: string[] = [];
+  while (randomNotes.length < amount) {
+    const note = getLaneNote(lanes[Math.floor(Math.random() * lanes.length)]);
+    if (
+      !randomNotes.some(
+        (n) => n.replace(/[0-9]/g, '') === note.replace(/[0-9]/g, '')
+      )
+    ) {
+      randomNotes.push(note);
+    }
+  }
+  return randomNotes;
 }

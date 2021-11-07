@@ -1,6 +1,7 @@
 import GameScene from '../game';
 import { yieldTimeout } from '../utils/animation';
 import { CollisionGroup, PARENT_KEY } from '../utils/collisions';
+import { getChord } from '../utils/harmony';
 import {
   getLaneNote,
   getNoteAround,
@@ -197,14 +198,21 @@ export default class Ship {
     this.sideOffBeat = (GameScene.musicManager.beat + 1) % 2;
   }
 
-  private enterAnimation() {
+  private async enterAnimation() {
     this.sprite.setScale(PIXEL_SCALE * 0.4);
+
     this.game.tweens.add({
       targets: [this.sprite],
       scale: PIXEL_SCALE,
       duration: 150,
       ease: 'Back.easeOut',
     });
+
+    const chord = getChord(GameScene.musicManager.bar);
+    for (const note of chord) {
+      GameScene.instruments.playNote(InstrumentType.square, note);
+      await yieldTimeout(60);
+    }
   }
 
   // private clearTweens() {

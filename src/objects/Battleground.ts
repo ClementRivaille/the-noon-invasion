@@ -19,7 +19,7 @@ export default class Battleground {
     this.borders = game.physics.add.staticGroup();
     this.borders.add(game.add.zone(-100, height, 10, 100));
     this.borders.add(game.add.zone(width + 100, height, 10, 100));
-    this.floor = game.add.zone(width / 2, height + 100, width, 20);
+    this.floor = game.add.zone(width / 2, height + 50, width, 20);
 
     this.localWidth = width - 2 * MARGIN;
     this.laneWidth = this.localWidth / NB_LANES;

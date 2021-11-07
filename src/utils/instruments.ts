@@ -1,5 +1,5 @@
 import { Note, Scale } from '@tonaljs/tonal';
-import { Sampler } from 'tone';
+import { FeedbackDelay, Sampler } from 'tone';
 import GameScene from '../game';
 import { BEAT_LENGTH } from './musicManager';
 
@@ -7,6 +7,9 @@ export enum InstrumentType {
   invader,
   shoot,
   kill,
+  guitar,
+  square,
+  string_pad,
 }
 
 const SCALE = Scale.get('C dorian').notes;
@@ -38,6 +41,9 @@ export default class Instruments {
   private invaderSampler: Sampler;
   private shootSampler: Sampler;
   private killSampler: Sampler;
+  private guitarSampler: Sampler;
+  private squareSampler: Sampler;
+  private stringPadSampler: Sampler;
 
   public load: Promise<void[]>;
 
@@ -98,6 +104,58 @@ export default class Instruments {
       )
     );
 
+    promises.push(
+      new Promise((resolve) => {
+        this.guitarSampler = new Sampler({
+          urls: {
+            C3: 'C3.wav',
+            C4: 'C4.wav',
+            E2: 'E2.wav',
+            E3: 'E3.wav',
+            'G#2': 'Gs2.wav',
+            'G#3': 'Gs3.wav',
+          },
+          release: 1.0,
+          baseUrl: './samples/guitar/',
+          volume: -9,
+          onload: () => resolve(),
+        }).toDestination();
+      })
+    );
+    promises.push(
+      new Promise((resolve) => {
+        const delay = new FeedbackDelay({
+          delayTime: 0.2,
+          wet: 0.2,
+          feedback: 0.1,
+        }).toDestination();
+        this.squareSampler = new Sampler({
+          urls: {
+            'D#4': 'square-Ds.wav',
+          },
+          baseUrl: './samples/',
+          release: 0.2,
+          volume: -1,
+          onload: () => resolve(),
+        }).connect(delay);
+      })
+    );
+    promises.push(
+      new Promise((resolve) => {
+        this.stringPadSampler = new Sampler({
+          urls: {
+            C5: 'C5.wav',
+            D4: 'D4.wav',
+            G4: 'G4.wav',
+          },
+          baseUrl: './samples/string_pad/',
+          volume: 5,
+          release: 0.6,
+          onload: () => resolve(),
+        }).toDestination();
+      })
+    );
+
     this.load = Promise.all(promises);
   }
 
@@ -122,6 +180,30 @@ export default class Instruments {
 
       this.killSampler.triggerAttack(
         [note, secondNote],
+        GameScene.musicManager.currentTime
+      );
+    } else if (instrument == InstrumentType.guitar) {
+      const lowerNote = note.replace(
+        /[0-9]/g,
+        `${2 + Math.floor(Math.random())}`
+      );
+      this.guitarSampler.triggerAttackRelease(
+        lowerNote,
+        BEAT_LENGTH * 2,
+        GameScene.musicManager.currentTime
+      );
+    } else if (instrument == InstrumentType.square) {
+      const higherNote = note.replace(/[0-9]/g, '5');
+      this.squareSampler.triggerAttackRelease(
+        higherNote,
+        BEAT_LENGTH / 2,
+        GameScene.musicManager.currentTime
+      );
+    } else if (instrument == InstrumentType.string_pad) {
+      this.stringPadSampler.releaseAll();
+      this.stringPadSampler.triggerAttackRelease(
+        note,
+        BEAT_LENGTH * 1.5,
         GameScene.musicManager.currentTime
       );
     }

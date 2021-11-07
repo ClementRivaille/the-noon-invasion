@@ -9,7 +9,7 @@ import Ship, { ShipSignals, SIDE_FLAG } from './objects/Ship';
 import UI from './objects/UI';
 import { yieldTimeout } from './utils/animation';
 import CollisionManager from './utils/collisions';
-import { pickLane } from './utils/harmony';
+import { getStrongNotes, pickLane } from './utils/harmony';
 import Instruments, { getLaneNote, InstrumentType } from './utils/instruments';
 import MusicManager, { MusicManagerSignals } from './utils/musicManager';
 import ParticlesManager from './utils/particles';
@@ -141,6 +141,8 @@ export default class GameScene extends Phaser.Scene {
       this.destroyInvader(this.invaders[0]);
     }
 
+    this.dieSFX();
+
     if (continues > 0) {
       await yieldTimeout(600);
       this.ship.respawn();
@@ -183,6 +185,11 @@ export default class GameScene extends Phaser.Scene {
 
   private onInvade(invader: Invader) {
     this.score.decrease();
+    const lane = GameScene.battleground.getLane(invader.x);
+    GameScene.instruments.playNote(
+      InstrumentType.string_pad,
+      getLaneNote(lane)
+    );
     this.destroyInvader(invader);
   }
 
@@ -200,12 +207,20 @@ export default class GameScene extends Phaser.Scene {
         GameScene.musicManager.start();
       }
 
+      console.log('what.');
       // Start game
-      this.score.reset();
       this.state = GameStates.Play;
+      this.score.reset();
       this.ship.activate();
       this.ui.hideTitle();
       this.invaderScheduler.setActive(true);
+    }
+  }
+
+  private async dieSFX() {
+    const notes = getStrongNotes(GameScene.musicManager.bar, 2);
+    for (const note of notes) {
+      GameScene.instruments.playNote(InstrumentType.guitar, note);
     }
   }
 }

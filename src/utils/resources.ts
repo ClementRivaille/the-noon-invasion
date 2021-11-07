@@ -1,13 +1,13 @@
-import ghostSpriteUrl from '../../assets/sprites/ghost_spritesheet.png';
+import shipSpriteUrl from '../../assets/sprites/ship.png';
 import invaderSpriteUrl from '../../assets/sprites/invader.png';
 
 export enum SpritesRes {
-  ghost = 'ghost',
+  ship = 'ship',
   invader = 'invader',
 }
 
 const spritesUrls = new Map<SpritesRes, string>([
-  [SpritesRes.ghost, ghostSpriteUrl],
+  [SpritesRes.ship, shipSpriteUrl],
   [SpritesRes.invader, invaderSpriteUrl],
 ]);
 const spritesDimensions = new Map<
@@ -15,20 +15,22 @@ const spritesDimensions = new Map<
   Phaser.Types.Loader.FileTypes.ImageFrameConfig
 >([
   [
-    SpritesRes.ghost,
+    SpritesRes.ship,
     {
-      frameWidth: 15,
-      frameHeight: 30,
+      frameWidth: 11,
+      frameHeight: 8,
     },
   ],
   [
     SpritesRes.invader,
     {
-      frameWidth: 50,
-      frameHeight: 37,
+      frameWidth: 14,
+      frameHeight: 13,
     },
   ],
 ]);
+
+export const PIXEL_SCALE = 4.2;
 
 export enum MusicRes {
   drum_test = 'drum_test',

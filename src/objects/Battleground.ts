@@ -54,7 +54,6 @@ export default class Battleground {
   }
 
   isLaneOpen(laneIdx: number) {
-    console.log('eh?', this.lanesContent, laneIdx);
     const lane = this.lanesContent[laneIdx];
 
     return lane.length < 4 && !lane.some((invader) => invader.y < 45);

@@ -6,10 +6,13 @@ import {
   InstrumentType,
 } from '../utils/instruments';
 import { MusicManagerSignals } from '../utils/musicManager';
-import { SpritesRes } from '../utils/resources';
+import { PIXEL_SCALE, SpritesRes } from '../utils/resources';
 
 const SPEED = 800;
 const LASER_SPEED = 1000;
+
+const SHIP_COLOR = 0xe7add9;
+const LASER_COLOR = 0xf38472;
 
 export default class Ship {
   public sprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
@@ -23,10 +26,11 @@ export default class Ship {
   //private tweens: Phaser.Tweens.Tween[] = [];
 
   constructor(private game: GameScene, x: number, y: number) {
-    this.sprite = game.physics.add.sprite(x, y, SpritesRes.ghost, 0);
+    this.sprite = game.physics.add.sprite(x, y, SpritesRes.ship, 0);
     GameScene.collisionManager.groups[CollisionGroup.Ship].add(this.sprite);
     this.sprite.setOrigin(0.5, 0.5);
-    this.sprite.scale = 1.6; // TMP
+    this.sprite.scale = PIXEL_SCALE;
+    this.sprite.setTint(SHIP_COLOR);
     this.sprite.setCollideWorldBounds(true);
     this.sprite.setDepth(5);
     this.sprite.setData(PARENT_KEY, this);
@@ -71,9 +75,9 @@ export default class Ship {
       const laser = this.game.add.rectangle(
         this.sprite.x,
         this.sprite.y,
-        5,
+        4,
         40,
-        0xee1111
+        LASER_COLOR
       );
       this.game.physics.world.enable(laser);
       GameScene.collisionManager.groups[CollisionGroup.Laser].add(laser);
@@ -98,7 +102,7 @@ export default class Ship {
           this.sprite.y,
           40,
           15,
-          0xee1111
+          LASER_COLOR
         );
         this.game.physics.world.enable(laser);
         GameScene.collisionManager.groups[CollisionGroup.Laser].add(laser);

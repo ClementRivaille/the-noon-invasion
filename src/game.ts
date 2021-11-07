@@ -1,3 +1,4 @@
+import Background from './objects/Background';
 import Battleground from './objects/Battleground';
 import Invader, { InvaderSignals } from './objects/Invader';
 import InvaderScheduler, {
@@ -39,6 +40,8 @@ export default class GameScene extends Phaser.Scene {
     );
     GameScene.collisionManager = new CollisionManager(this);
 
+    new Background(this, this.camera.width, this.camera.height, 100);
+
     this.ship = new Ship(this, this.camera.centerX, this.camera.height - 50);
 
     this.invaderScheduler = new InvaderScheduler();
@@ -50,7 +53,7 @@ export default class GameScene extends Phaser.Scene {
     this.debugText = this.add.text(100, 100, 'DEBUG', {
       fontSize: '30px',
     });
-    // this.debugText.setAlpha(0);
+    this.debugText.setAlpha(0);
 
     // LOADING
     await Promise.all([
@@ -67,6 +70,11 @@ export default class GameScene extends Phaser.Scene {
 
   update() {
     this.ship.update();
+
+    this.camera.setScroll(
+      (this.ship.sprite.x - this.camera.width / 2) * 0.08,
+      this.camera.scrollY
+    );
 
     // this.debugText.setText(
     //   `${GameScene.battleground.getLane(this.ship.sprite.x)}`

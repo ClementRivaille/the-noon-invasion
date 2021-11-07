@@ -52,6 +52,7 @@ export default class GameScene extends Phaser.Scene {
       this.camera.height
     );
     GameScene.collisionManager = new CollisionManager(this);
+    GameScene.particles = new ParticlesManager(this);
     this.ui = new UI(this, this.camera.width, this.camera.height);
 
     new Background(this, this.camera.width, this.camera.height, 100);
@@ -66,8 +67,6 @@ export default class GameScene extends Phaser.Scene {
       InvaderSchedulerSignals.sendInvader,
       () => this.addInvader()
     );
-
-    GameScene.particles = new ParticlesManager(this);
 
     this.debugText = this.add.text(100, 100, 'DEBUG', {
       fontSize: '30px',

@@ -15,7 +15,7 @@ const LASER_SPEED = 1000;
 const MAX_AMMO = 200;
 const COOLDOWN = 1000;
 
-const SHIP_COLOR = 0xe7add9;
+export const SHIP_COLOR = 0xe7add9;
 const LASER_COLOR = 0xf38472;
 
 export enum ShipSignals {
@@ -38,6 +38,8 @@ export default class Ship {
   private active = false;
   public continues = 3;
   public ammo = MAX_AMMO;
+
+  private particleEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
 
   constructor(
     private game: GameScene,
@@ -65,6 +67,8 @@ export default class Ship {
     );
 
     this.sprite.setAlpha(0);
+
+    this.particleEmitter = GameScene.particles.getLargeEmitter();
   }
 
   update() {
@@ -98,6 +102,12 @@ export default class Ship {
   async onHitInvader() {
     // Explosion
     this.sprite.setAlpha(0);
+    this.sprite.setVelocityX(0);
+    this.particleEmitter.explode(
+      15 + Math.floor(Math.random() * 10),
+      this.sprite.x,
+      this.sprite.y
+    );
 
     this.active = false;
     this.continues = this.continues - 1;
@@ -116,10 +126,10 @@ export default class Ship {
       await yieldTimeout(100);
       this.sprite.setAlpha(1);
       nbBlinks++;
-      if (nbBlinks > 4) {
+      if (nbBlinks > 3) {
         clearInterval(interval);
       }
-    }, 300);
+    }, 200);
   }
 
   private move() {

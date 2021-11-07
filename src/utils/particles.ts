@@ -29,4 +29,15 @@ export default class ParticlesManager {
       frequency: -1,
     });
   }
+
+  getLargeEmitter() {
+    return this.dotParticles.createEmitter({
+      lifespan: { min: 400, max: 1000 },
+      tint: 0xdc4c49,
+      scale: { start: 1.2, end: 0 },
+      gravityY: 0,
+      speed: { min: 600, max: 800 },
+      frequency: -1,
+    });
+  }
 }

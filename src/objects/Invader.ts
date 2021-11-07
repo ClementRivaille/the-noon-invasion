@@ -7,7 +7,7 @@ import Signal from '../utils/signal';
 const SPEED = 110;
 const ATTACK_SPEED = 1400;
 
-const INVADER_COLOR = 0xcfd4b4;
+export const INVADER_COLOR = 0xcfd4b4;
 
 export enum InvaderSignals {
   invade = 'invade',
@@ -17,6 +17,8 @@ export default class Invader {
   public signals = new Signal<InvaderSignals>();
 
   private sprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+  static particlesEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
+
   constructor(private game: Phaser.Scene, public readonly lane: number) {
     this.sprite = game.physics.add.sprite(
       GameScene.battleground.getLaneCoord(lane),
@@ -38,6 +40,11 @@ export default class Invader {
       MusicManagerSignals.beat,
       this.animate
     );
+
+    // Particles
+    if (!Invader.particlesEmitter) {
+      Invader.particlesEmitter = GameScene.particles.getSmallEmitter();
+    }
   }
 
   onFloorContact() {
@@ -57,6 +64,12 @@ export default class Invader {
   }
 
   public destroy() {
+    Invader.particlesEmitter.explode(
+      5 + Math.floor(5 * Math.random()),
+      this.sprite.x,
+      this.sprite.y
+    );
+
     GameScene.collisionManager.groups[CollisionGroup.Invaders].remove(
       this.sprite
     );

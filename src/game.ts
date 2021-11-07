@@ -9,6 +9,7 @@ import CollisionManager from './utils/collisions';
 import { pickLane } from './utils/harmony';
 import Instruments, { getLaneNote, InstrumentType } from './utils/instruments';
 import MusicManager, { MusicManagerSignals } from './utils/musicManager';
+import ParticlesManager from './utils/particles';
 import { loadResources } from './utils/resources';
 
 export default class GameScene extends Phaser.Scene {
@@ -24,6 +25,7 @@ export default class GameScene extends Phaser.Scene {
   static musicManager: MusicManager;
   static collisionManager: CollisionManager;
   static instruments: Instruments;
+  static particles: ParticlesManager;
 
   preload() {
     loadResources(this);
@@ -49,6 +51,8 @@ export default class GameScene extends Phaser.Scene {
       InvaderSchedulerSignals.sendInvader,
       () => this.addInvader()
     );
+
+    GameScene.particles = new ParticlesManager(this);
 
     this.debugText = this.add.text(100, 100, 'DEBUG', {
       fontSize: '30px',

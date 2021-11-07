@@ -15,6 +15,8 @@ const LASER_SPEED = 1000;
 const MAX_AMMO = 200;
 const COOLDOWN = 1000;
 
+export const SIDE_FLAG = 'SIDE';
+
 export const SHIP_COLOR = 0xe7add9;
 const LASER_COLOR = 0xf38472;
 
@@ -179,6 +181,8 @@ export default class Ship {
 
         const laserBody = laser.body as Phaser.Physics.Arcade.Body;
         laserBody.setVelocityX(LASER_SPEED * 2 * direction);
+
+        laser.setData(SIDE_FLAG, true);
 
         const currentLane = GameScene.battleground.getLane(this.sprite.x);
         const note = getNoteAround(

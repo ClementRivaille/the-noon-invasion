@@ -4,7 +4,8 @@ import Invader, { InvaderSignals } from './objects/Invader';
 import InvaderScheduler, {
   InvaderSchedulerSignals,
 } from './objects/InvaderScheduler';
-import Ship, { ShipSignals } from './objects/Ship';
+import Score, { ScoreSignals } from './objects/Score';
+import Ship, { ShipSignals, SIDE_FLAG } from './objects/Ship';
 import UI from './objects/UI';
 import { yieldTimeout } from './utils/animation';
 import CollisionManager from './utils/collisions';
@@ -37,6 +38,7 @@ export default class GameScene extends Phaser.Scene {
   static particles: ParticlesManager;
 
   private state = GameStates.Loading;
+  private score: Score;
 
   preload() {
     loadResources(this);
@@ -54,6 +56,12 @@ export default class GameScene extends Phaser.Scene {
     GameScene.collisionManager = new CollisionManager(this);
     GameScene.particles = new ParticlesManager(this);
     this.ui = new UI(this, this.camera.width, this.camera.height);
+    this.score = new Score();
+    this.score.signals.subscribe(
+      ScoreSignals.updateScore,
+      (score: number, increase?: boolean) =>
+        this.ui.updateScore(score, increase)
+    );
 
     new Background(this, this.camera.width, this.camera.height, 100);
 
@@ -112,11 +120,16 @@ export default class GameScene extends Phaser.Scene {
     laser: Phaser.Types.Physics.Arcade.GameObjectWithBody,
     invader: Invader
   ) {
+    const bonus = !!laser.getData(SIDE_FLAG);
     laser.destroy();
     GameScene.instruments.playNote(
       InstrumentType.kill,
       getLaneNote(GameScene.battleground.getLane(invader.x))
     );
+    this.score.increase(bonus);
+    if (bonus) {
+      this.ui.showMultiplier(invader.x, invader.y);
+    }
     this.destroyInvader(invader);
   }
 
@@ -134,7 +147,8 @@ export default class GameScene extends Phaser.Scene {
       this.invaderScheduler.setActive(true);
     } else {
       this.state = GameStates.GameOver;
-      this.ui.showGameOver(0, 0);
+      const finalScore = this.score.validate();
+      this.ui.showGameOver(finalScore, this.score.best);
       this.tweens.add({
         targets: [this.camera],
         scrollX: 0,
@@ -168,7 +182,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private onInvade(invader: Invader) {
-    // TODO: lower health or whatever
+    this.score.decrease();
     this.destroyInvader(invader);
   }
 
@@ -187,6 +201,7 @@ export default class GameScene extends Phaser.Scene {
       }
 
       // Start game
+      this.score.reset();
       this.state = GameStates.Play;
       this.ship.activate();
       this.ui.hideTitle();

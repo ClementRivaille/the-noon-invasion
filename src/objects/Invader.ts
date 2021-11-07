@@ -86,7 +86,7 @@ export default class Invader {
     this.dead = true;
 
     for (const tween of this.tweens) {
-      if (tween.state !== Phaser.Tweens.COMPLETE) {
+      if (tween.isPlaying()) {
         tween.stop();
       }
     }

@@ -1,7 +1,8 @@
+import { promisifyTween } from '../utils/animation';
 import { Font, loadFonts } from '../utils/fonts';
 import { PIXEL_SCALE, SpritesRes } from '../utils/resources';
 
-const SMALL = 12;
+const SMALL = 30;
 const MEDIUM = 40;
 const LARGE = 150;
 const UI_SCROLL = 0.6;
@@ -23,6 +24,7 @@ export default class UI {
 
   private score: Phaser.GameObjects.Text;
   private continues: Phaser.GameObjects.Sprite[] = [];
+  private scoreTween?: Phaser.Tweens.Tween;
 
   private gameOver: Phaser.GameObjects.Text;
   private scores: Phaser.GameObjects.Text;
@@ -59,7 +61,11 @@ export default class UI {
     this.score.setAlpha(0);
     this.gameOver.setAlpha(1);
     this.scores.setAlpha(1);
-    this.scores.setText(`Scores:\nLast - ${score}\nBest - ${best}`);
+    this.scores.setText(
+      `Scores:\nLast - ${this.formatScore(score)}\nBest - ${this.formatScore(
+        best
+      )}`
+    );
     this.title.setAlpha(0.4);
     this.title.setScale(0.7);
     this.pressStart.setText('Press Enter to try again');
@@ -70,6 +76,47 @@ export default class UI {
     for (let i = 0; i < this.continues.length; i++) {
       this.continues[i].setAlpha(i < continuesLeft ? 0.2 : 0);
     }
+  }
+
+  public updateScore(score: number, increase?: boolean) {
+    this.score.setText(this.formatScore(score));
+
+    if (!this.scoreTween || !this.scoreTween.isPlaying()) {
+      if (increase) {
+        this.scoreTween = this.game.tweens.add({
+          targets: [this.score],
+          scale: 1.1,
+          yoyo: true,
+          duration: 80,
+          ease: 'Sine.easeOut',
+        });
+      } else if (increase === false) {
+        this.scoreTween = this.game.tweens.add({
+          targets: [this.score],
+          x: this.score.x - 10,
+          yoyo: true,
+          duration: 40,
+          loop: 3,
+        });
+      }
+    }
+  }
+
+  async showMultiplier(x: number, y: number) {
+    const text = this.game.add.text(x, y, 'x2', {
+      ...DEFAULT_STYLE,
+      align: 'center',
+      fontSize: `${SMALL}px`,
+    });
+    const tween = this.game.tweens.add({
+      targets: [text],
+      alpha: 0,
+      y: y - 50,
+      ease: 'Sine.easeIn',
+      duration: 600,
+    });
+    await promisifyTween(tween);
+    text.destroy();
   }
 
   private async init(width: number, height: number) {
@@ -98,6 +145,7 @@ export default class UI {
       ...DEFAULT_STYLE,
       fontSize: '80px',
       align: 'right',
+      fixedWidth: 200,
     });
     this.score.setAlpha(0);
     this.score.setOrigin(1, 1);
@@ -132,5 +180,13 @@ export default class UI {
       }
     );
     this.scores.setAlpha(0);
+  }
+
+  private formatScore(score: number) {
+    let textScore = `${score}`;
+    while (textScore.length < 6) {
+      textScore = `0${textScore}`;
+    }
+    return textScore;
   }
 }

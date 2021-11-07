@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
-    "lib": ["ESNext", "DOM", "scripthost"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable", "scripthost"],
     "moduleResolution": "Node",
     "strict": true,
     "sourceMap": true,

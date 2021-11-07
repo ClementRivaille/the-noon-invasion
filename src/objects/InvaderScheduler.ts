@@ -21,6 +21,8 @@ const BEAT_PROBS: BeatChances[] = [
 export default class InvaderScheduler {
   public signals = new Signal<InvaderSchedulerSignals>();
 
+  private active = false;
+
   constructor() {
     GameScene.musicManager.signals.subscribe(
       MusicManagerSignals.beat,
@@ -32,12 +34,12 @@ export default class InvaderScheduler {
     );
   }
 
-  // scheduleNextInvader() {
-  //   this.waitBeats = 1 + Math.floor(Math.random() * 2);
-  //   this.anticipation = Math.random() > 0.5;
-  // }
+  public setActive(value: boolean) {
+    this.active = value;
+  }
 
   private onBeat(beat: number) {
+    if (!this.active) return;
     const prob = BEAT_PROBS[beat];
     if (Math.random() < prob.note) {
       this.signals.emit(InvaderSchedulerSignals.sendInvader);
@@ -45,7 +47,7 @@ export default class InvaderScheduler {
   }
 
   private onTriplet(triplet: number) {
-    if (triplet === 2) {
+    if (this.active && triplet === 2) {
       const next_beat = (GameScene.musicManager.beat + 1) % 8;
       const prob = BEAT_PROBS[next_beat];
       if (Math.random() < prob.anticipation)

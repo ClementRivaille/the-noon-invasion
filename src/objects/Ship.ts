@@ -25,8 +25,15 @@ export default class Ship {
 
   //private tweens: Phaser.Tweens.Tween[] = [];
 
-  constructor(private game: GameScene, x: number, y: number) {
-    this.sprite = game.physics.add.sprite(x, y, SpritesRes.ship, 0);
+  private active = false;
+  public continues = 3;
+
+  constructor(
+    private game: GameScene,
+    private startX: number,
+    private y: number
+  ) {
+    this.sprite = game.physics.add.sprite(startX, y, SpritesRes.ship, 0);
     GameScene.collisionManager.groups[CollisionGroup.Ship].add(this.sprite);
     this.sprite.setOrigin(0.5, 0.5);
     this.sprite.scale = PIXEL_SCALE;
@@ -45,9 +52,13 @@ export default class Ship {
       MusicManagerSignals.beat,
       (beat: number) => this.sideShoot(beat)
     );
+
+    this.sprite.setAlpha(0);
   }
 
   update() {
+    if (!this.active) return;
+
     if (!this.sideShooting) {
       this.move();
     } else if (this.sprite.body.velocity.x !== 0) {
@@ -55,6 +66,22 @@ export default class Ship {
     }
     this.shooting = this.cursors.up.isDown;
     this.sideShooting = this.cursors.down.isDown && !this.shooting;
+  }
+
+  activate() {
+    this.sprite.setPosition(this.startX, this.y);
+    this.continues = 3;
+    this.sprite.setAlpha(1);
+    this.active = true;
+
+    // Animate
+    this.sprite.setScale(PIXEL_SCALE * 0.4);
+    this.game.tweens.add({
+      targets: [this.sprite],
+      scale: PIXEL_SCALE,
+      duration: 150,
+      ease: 'Back.easeOut',
+    });
   }
 
   private move() {

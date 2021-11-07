@@ -5,19 +5,28 @@ import InvaderScheduler, {
   InvaderSchedulerSignals,
 } from './objects/InvaderScheduler';
 import Ship from './objects/Ship';
+import UI from './objects/UI';
 import CollisionManager from './utils/collisions';
+import { loadFonts } from './utils/fonts';
 import { pickLane } from './utils/harmony';
 import Instruments, { getLaneNote, InstrumentType } from './utils/instruments';
 import MusicManager, { MusicManagerSignals } from './utils/musicManager';
 import ParticlesManager from './utils/particles';
 import { loadResources } from './utils/resources';
 
+enum GameStates {
+  Loading,
+  Title,
+  Play,
+  GameOver,
+}
 export default class GameScene extends Phaser.Scene {
   private camera: Phaser.Cameras.Scene2D.Camera;
 
   private ship: Ship;
   private invaders: Invader[] = [];
   private invaderScheduler: InvaderScheduler;
+  private ui: UI;
 
   public debugText: Phaser.GameObjects.Text;
 
@@ -26,6 +35,8 @@ export default class GameScene extends Phaser.Scene {
   static collisionManager: CollisionManager;
   static instruments: Instruments;
   static particles: ParticlesManager;
+
+  private state = GameStates.Loading;
 
   preload() {
     loadResources(this);
@@ -41,6 +52,7 @@ export default class GameScene extends Phaser.Scene {
       this.camera.height
     );
     GameScene.collisionManager = new CollisionManager(this);
+    this.ui = new UI(this, this.camera.width, this.camera.height);
 
     new Background(this, this.camera.width, this.camera.height, 100);
 
@@ -64,12 +76,17 @@ export default class GameScene extends Phaser.Scene {
       GameScene.musicManager.load,
       GameScene.instruments.load,
     ]);
-    GameScene.musicManager.start();
+    this.state = GameStates.Title;
+    this.ui.onDoneLoading();
 
     GameScene.musicManager.signals.subscribe(MusicManagerSignals.beat, () => {
       this.onBeat();
     });
     //this.invaderScheduler.scheduleNextInvader();
+
+    // UI Controls
+    const enter = this.input.keyboard.addKey('ENTER');
+    enter.on('down', () => this.onPressStart());
   }
 
   update() {
@@ -137,4 +154,14 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private onBeat() {}
+
+  private onPressStart() {
+    if (this.state === GameStates.Title || GameStates.GameOver) {
+      GameScene.musicManager.start();
+      // Start game
+      this.ui.hideTitle();
+      this.ship.activate();
+      this.invaderScheduler.setActive(true);
+    }
+  }
 }

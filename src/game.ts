@@ -206,6 +206,7 @@ export default class GameScene extends Phaser.Scene {
     if ([GameStates.Title, GameStates.GameOver].includes(this.state)) {
       if (this.state === GameStates.Title) {
         GameScene.musicManager.start();
+        this.ui.showInstructions();
       } else {
         GameScene.musicManager.setBassActive(true);
       }

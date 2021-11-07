@@ -13,8 +13,6 @@ import Signal from '../utils/signal';
 
 const SPEED = 800;
 const LASER_SPEED = 1000;
-const MAX_AMMO = 200;
-const COOLDOWN = 1000;
 
 export const SIDE_FLAG = 'SIDE';
 
@@ -23,7 +21,6 @@ const LASER_COLOR = 0xf38472;
 
 export enum ShipSignals {
   die = 'die',
-  updateAmmo = 'updateAmmo',
 }
 export default class Ship {
   public signals = new Signal<ShipSignals>();
@@ -40,7 +37,6 @@ export default class Ship {
 
   private active = false;
   public continues = 3;
-  public ammo = MAX_AMMO;
 
   private particleEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
 

@@ -1,4 +1,4 @@
-import { promisifyTween } from '../utils/animation';
+import { promisifyTween, yieldTimeout } from '../utils/animation';
 import { Font, loadFonts } from '../utils/fonts';
 import { PIXEL_SCALE, SpritesRes } from '../utils/resources';
 
@@ -28,6 +28,8 @@ export default class UI {
 
   private gameOver: Phaser.GameObjects.Text;
   private scores: Phaser.GameObjects.Text;
+
+  private instructions: Phaser.GameObjects.Text;
 
   constructor(private game: Phaser.Scene, width: number, height: number) {
     this.loading = game.add.text(width / 2, height / 2, 'Loading', {
@@ -119,6 +121,23 @@ export default class UI {
     text.destroy();
   }
 
+  async showInstructions() {
+    // this.instructions.setPosition(x, y);
+    this.game.tweens.add({
+      targets: [this.instructions],
+      alpha: 1,
+      duration: 200,
+      ease: 'Sine.easeOut',
+    });
+    await yieldTimeout(4000);
+    this.game.tweens.add({
+      targets: [this.instructions],
+      alpha: 0,
+      duration: 700,
+      ease: 'Sine.easeOut',
+    });
+  }
+
   private async init(width: number, height: number) {
     await loadFonts();
     this.loading.setAlpha(0);
@@ -139,6 +158,18 @@ export default class UI {
       DEFAULT_STYLE
     );
     this.pressStart.setOrigin(0, 0.5);
+
+    this.instructions = this.game.add.text(
+      width / 2,
+      height / 2,
+      'Move with Left and Right\nHold Up or Down to shoot',
+      {
+        ...DEFAULT_STYLE,
+        align: 'center',
+      }
+    );
+    this.instructions.setAlpha(0);
+    this.instructions.setOrigin(0.5, 0.5);
 
     // Score
     this.score = this.game.add.text(width - 20, height - 10, '000000', {

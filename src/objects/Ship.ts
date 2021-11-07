@@ -1,4 +1,5 @@
 import GameScene from '../game';
+import { yieldTimeout } from '../utils/animation';
 import { CollisionGroup, PARENT_KEY } from '../utils/collisions';
 import {
   getLaneNote,
@@ -7,14 +8,23 @@ import {
 } from '../utils/instruments';
 import { MusicManagerSignals } from '../utils/musicManager';
 import { PIXEL_SCALE, SpritesRes } from '../utils/resources';
+import Signal from '../utils/signal';
 
 const SPEED = 800;
 const LASER_SPEED = 1000;
+const MAX_AMMO = 200;
+const COOLDOWN = 1000;
 
 const SHIP_COLOR = 0xe7add9;
 const LASER_COLOR = 0xf38472;
 
+export enum ShipSignals {
+  die = 'die',
+  updateAmmo = 'updateAmmo',
+}
 export default class Ship {
+  public signals = new Signal<ShipSignals>();
+
   public sprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -27,6 +37,7 @@ export default class Ship {
 
   private active = false;
   public continues = 3;
+  public ammo = MAX_AMMO;
 
   constructor(
     private game: GameScene,
@@ -84,6 +95,33 @@ export default class Ship {
     });
   }
 
+  async onHitInvader() {
+    // Explosion
+    this.sprite.setAlpha(0);
+
+    this.active = false;
+    this.continues = this.continues - 1;
+    this.signals.emit(ShipSignals.die, this.continues);
+  }
+
+  respawn() {
+    this.active = true;
+    this.sprite.setAlpha(1);
+    this.sprite.setY(this.y);
+
+    // Blink
+    let nbBlinks = 0;
+    const interval = setInterval(async () => {
+      this.sprite.setAlpha(0);
+      await yieldTimeout(100);
+      this.sprite.setAlpha(1);
+      nbBlinks++;
+      if (nbBlinks > 4) {
+        clearInterval(interval);
+      }
+    }, 300);
+  }
+
   private move() {
     const direction = new Phaser.Math.Vector2(0, 0);
 
@@ -98,7 +136,7 @@ export default class Ship {
   }
 
   private shoot() {
-    if (this.shooting && !this.sideShooting) {
+    if (this.shooting && this.active && !this.sideShooting) {
       const laser = this.game.add.rectangle(
         this.sprite.x,
         this.sprite.y,
@@ -122,7 +160,7 @@ export default class Ship {
   }
 
   private sideShoot(beat: number) {
-    if (this.sideShooting && beat % 2 == this.sideOffBeat)
+    if (this.active && this.sideShooting && beat % 2 == this.sideOffBeat)
       for (const direction of [-1, 1]) {
         const laser = this.game.add.rectangle(
           this.sprite.x,

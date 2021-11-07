@@ -53,7 +53,7 @@ export default class UI {
     this.score.setAlpha(0);
     this.gameOver.setAlpha(1);
     this.scores.setAlpha(1);
-    this.scores.setText(`Scores:\nLast - ${score}\nBest - ${best}`);
+    this.scores.setText(`Scores:\nLast - ${score}\nBest - ${best}`);
   }
 
   private async init(width: number, height: number) {

@@ -41,4 +41,9 @@ export default class Signal<T extends string> {
       (this.subscriptions[signal] as Callback[]) || []
     ).filter((cb) => cb !== callback);
   }
+
+  clear() {
+    this.subscriptions = {};
+    this.yields = {};
+  }
 }

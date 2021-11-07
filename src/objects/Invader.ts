@@ -1,5 +1,5 @@
 import GameScene from '../game';
-import { CollisionGroup, PARENT_KEY } from '../utils/collisions';
+import { CollisionGroup, DEATH_FLAG, PARENT_KEY } from '../utils/collisions';
 import { MusicManagerSignals } from '../utils/musicManager';
 import { PIXEL_SCALE, SpritesRes } from '../utils/resources';
 import Signal from '../utils/signal';
@@ -19,6 +19,9 @@ export default class Invader {
   private sprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
   private active = false;
   static particlesEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
+
+  private dead = false;
+  private tweens: Phaser.Tweens.Tween[] = [];
 
   constructor(private game: Phaser.Scene, public readonly lane: number) {
     this.sprite = game.physics.add.sprite(
@@ -45,14 +48,16 @@ export default class Invader {
     // Animation on start
     this.sprite.setScale(0.2);
     this.sprite.setAlpha(0.3);
-    this.game.tweens.add({
-      targets: [this.sprite],
-      scale: PIXEL_SCALE,
-      alpha: 1,
-      duration: 250,
-      ease: 'Back.easeOut',
-      onComplete: () => this.enableBody(),
-    });
+    this.tweens.push(
+      this.game.tweens.add({
+        targets: [this.sprite],
+        scale: PIXEL_SCALE,
+        alpha: 1,
+        duration: 250,
+        ease: 'Back.easeOut',
+        onComplete: () => this.enableBody(),
+      })
+    );
 
     // Particles
     if (!Invader.particlesEmitter) {
@@ -77,24 +82,45 @@ export default class Invader {
   }
 
   public destroy() {
+    if (this.dead) return;
+    this.dead = true;
+
+    for (const tween of this.tweens) {
+      if (tween.state !== Phaser.Tweens.COMPLETE) {
+        tween.stop();
+      }
+    }
+
+    this.sprite.setData(DEATH_FLAG, true);
     Invader.particlesEmitter.explode(
       5 + Math.floor(5 * Math.random()),
       this.sprite.x,
       this.sprite.y
     );
 
-    GameScene.collisionManager.groups[CollisionGroup.Invaders].remove(
-      this.sprite
-    );
+    if (this.active) {
+      GameScene.collisionManager.groups[CollisionGroup.Invaders].remove(
+        this.sprite,
+        true,
+        true
+      );
+    } else {
+      this.sprite.disableBody(true);
+      this.sprite.destroy(true);
+    }
+
+    // Remove signals
     GameScene.musicManager.signals.unsubscribe(
       MusicManagerSignals.beat,
       this.animate
     );
-    this.sprite.destroy();
+    this.signals.clear();
   }
 
   private enableBody() {
+    if (this.dead) return;
     GameScene.collisionManager.groups[CollisionGroup.Invaders].add(this.sprite);
+    this.sprite.setData(PARENT_KEY, this);
     this.sprite.setVelocityY(SPEED);
     this.active = true;
   }
@@ -102,12 +128,14 @@ export default class Invader {
   private animate() {
     this.sprite.setFrame(parseInt(this.sprite.frame.name, 10) === 0 ? 1 : 0);
     if (!this.active) return;
-    this.game.tweens.add({
-      targets: [this.sprite],
-      scale: this.sprite.scale * 1.1,
-      yoyo: true,
-      duration: 60,
-      ease: 'Sine.easeInOut',
-    });
+    this.tweens.push(
+      this.game.tweens.add({
+        targets: [this.sprite],
+        scale: this.sprite.scale * 1.1,
+        yoyo: true,
+        duration: 60,
+        ease: 'Sine.easeInOut',
+      })
+    );
   }
 }

@@ -4,10 +4,10 @@ import Invader, { InvaderSignals } from './objects/Invader';
 import InvaderScheduler, {
   InvaderSchedulerSignals,
 } from './objects/InvaderScheduler';
-import Ship from './objects/Ship';
+import Ship, { ShipSignals } from './objects/Ship';
 import UI from './objects/UI';
+import { yieldTimeout } from './utils/animation';
 import CollisionManager from './utils/collisions';
-import { loadFonts } from './utils/fonts';
 import { pickLane } from './utils/harmony';
 import Instruments, { getLaneNote, InstrumentType } from './utils/instruments';
 import MusicManager, { MusicManagerSignals } from './utils/musicManager';
@@ -57,6 +57,9 @@ export default class GameScene extends Phaser.Scene {
     new Background(this, this.camera.width, this.camera.height, 100);
 
     this.ship = new Ship(this, this.camera.centerX, this.camera.height - 50);
+    this.ship.signals.subscribe(ShipSignals.die, (continues: number) =>
+      this.onDie(continues)
+    );
 
     this.invaderScheduler = new InvaderScheduler();
     this.invaderScheduler.signals.subscribe(
@@ -69,6 +72,7 @@ export default class GameScene extends Phaser.Scene {
     this.debugText = this.add.text(100, 100, 'DEBUG', {
       fontSize: '30px',
     });
+    this.debugText.setDepth(20);
     this.debugText.setAlpha(0);
 
     // LOADING
@@ -92,14 +96,14 @@ export default class GameScene extends Phaser.Scene {
   update() {
     this.ship.update();
 
-    this.camera.setScroll(
-      (this.ship.sprite.x - this.camera.width / 2) * 0.08,
-      this.camera.scrollY
-    );
+    if (this.state === GameStates.Play) {
+      this.camera.setScroll(
+        (this.ship.sprite.x - this.camera.width / 2) * 0.08,
+        this.camera.scrollY
+      );
+    }
 
-    // this.debugText.setText(
-    //   `${GameScene.battleground.getLane(this.ship.sprite.x)}`
-    // );
+    //this.debugText.setText(`${this.invaders.length}`);
   }
 
   onLaserHitInvader(
@@ -114,9 +118,28 @@ export default class GameScene extends Phaser.Scene {
     this.destroyInvader(invader);
   }
 
-  onInvaderHitShip(invader: Invader, _ship: Ship) {
-    this.destroyInvader(invader);
-    this.camera.shake();
+  async onDie(continues: number) {
+    this.camera.shake(0.2);
+
+    this.invaderScheduler.setActive(false);
+    while (this.invaders.length > 0) {
+      this.destroyInvader(this.invaders[0]);
+    }
+
+    if (continues > 0) {
+      await yieldTimeout(600);
+      this.ship.respawn();
+      this.invaderScheduler.setActive(true);
+    } else {
+      this.state = GameStates.GameOver;
+      this.ui.showGameOver(0, 0);
+      this.tweens.add({
+        targets: [this.camera],
+        scrollX: 0,
+        duration: 500,
+        ease: 'Sine.easeOut',
+      });
+    }
   }
 
   private addInvader() {
@@ -157,10 +180,14 @@ export default class GameScene extends Phaser.Scene {
 
   private onPressStart() {
     if (this.state === GameStates.Title || GameStates.GameOver) {
-      GameScene.musicManager.start();
+      if (this.state === GameStates.Title) {
+        GameScene.musicManager.start();
+      }
+
       // Start game
-      this.ui.hideTitle();
+      this.state = GameStates.Play;
       this.ship.activate();
+      this.ui.hideTitle();
       this.invaderScheduler.setActive(true);
     }
   }

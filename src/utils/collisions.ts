@@ -1,5 +1,6 @@
 import GameScene from '../game';
 import Invader from '../objects/Invader';
+import Ship from '../objects/Ship';
 
 export enum CollisionGroup {
   Invaders,
@@ -8,6 +9,7 @@ export enum CollisionGroup {
 }
 
 export const PARENT_KEY = 'parent;';
+export const DEATH_FLAG = 'dead';
 
 export default class CollisionManager {
   public groups: {
@@ -24,6 +26,7 @@ export default class CollisionManager {
       this.groups[CollisionGroup.Invaders],
       this.groups[CollisionGroup.Laser],
       (invader, laser) => {
+        // Check if invader is alive
         this.game.onLaserHitInvader(laser, invader.getData(PARENT_KEY));
       }
     );
@@ -38,11 +41,9 @@ export default class CollisionManager {
     this.game.physics.add.collider(
       this.groups[CollisionGroup.Invaders],
       this.groups[CollisionGroup.Ship],
-      (invader, ship) => {
-        this.game.onInvaderHitShip(
-          invader.getData(PARENT_KEY),
-          ship.getData(PARENT_KEY)
-        );
+      (_invader, shipSprite) => {
+        const ship = shipSprite.getData(PARENT_KEY) as Ship;
+        ship.onHitInvader();
       }
     );
 

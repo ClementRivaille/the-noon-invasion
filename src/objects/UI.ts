@@ -68,7 +68,7 @@ export default class UI {
     );
     this.title.setAlpha(0.4);
     this.title.setScale(0.7);
-    this.pressStart.setText('Press Enter to try again');
+    this.pressStart.setText('Press Enter to restart');
     this.pressStart.setAlpha(1);
   }
 

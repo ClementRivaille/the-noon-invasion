@@ -65,6 +65,14 @@ export default class MusicManager {
     return this.orchestre.metronome;
   }
 
+  setBassActive(value: boolean) {
+    if (value) {
+      this.orchestre.play(MusicRes.bass_test, { now: true, fade: 0.5 });
+    } else {
+      this.orchestre.stop(MusicRes.bass_test, { now: true, fade: 0.5 });
+    }
+  }
+
   private onTriplet() {
     this.triplet = (this.triplet + 1) % 3;
     this.signals.emit(MusicManagerSignals.triplet, this.triplet);

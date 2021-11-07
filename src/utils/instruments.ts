@@ -80,6 +80,7 @@ export default class Instruments {
               C5: 'shoot_C5.wav',
             },
             baseUrl: './samples/shoot/',
+            volume: 1,
             onload: () => resolve(),
             release: 0.1,
           }).toDestination())
@@ -135,7 +136,7 @@ export default class Instruments {
           },
           baseUrl: './samples/',
           release: 0.2,
-          volume: -1,
+          volume: -9,
           onload: () => resolve(),
         }).connect(delay);
       })
@@ -149,7 +150,7 @@ export default class Instruments {
             G4: 'G4.wav',
           },
           baseUrl: './samples/string_pad/',
-          volume: 5,
+          volume: 8,
           release: 0.6,
           onload: () => resolve(),
         }).toDestination();

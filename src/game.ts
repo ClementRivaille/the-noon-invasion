@@ -150,6 +150,7 @@ export default class GameScene extends Phaser.Scene {
     } else {
       this.state = GameStates.GameOver;
       const finalScore = this.score.validate();
+      GameScene.musicManager.setBassActive(false);
       this.ui.showGameOver(finalScore, this.score.best);
       this.tweens.add({
         targets: [this.camera],
@@ -202,12 +203,13 @@ export default class GameScene extends Phaser.Scene {
   private onBeat() {}
 
   private onPressStart() {
-    if (this.state === GameStates.Title || GameStates.GameOver) {
+    if ([GameStates.Title, GameStates.GameOver].includes(this.state)) {
       if (this.state === GameStates.Title) {
         GameScene.musicManager.start();
+      } else {
+        GameScene.musicManager.setBassActive(true);
       }
 
-      console.log('what.');
       // Start game
       this.state = GameStates.Play;
       this.score.reset();

@@ -1,6 +1,5 @@
 import { Note, Scale } from '@tonaljs/tonal';
-import { FeedbackDelay, Sampler } from 'tone';
-import GameScene from '../game';
+import { FeedbackDelay, getContext, Sampler } from 'tone';
 import { BEAT_LENGTH } from './musicManager';
 
 export enum InstrumentType {
@@ -61,7 +60,7 @@ export default class Instruments {
               C5: 'inv_C5.wav',
             },
             baseUrl: './samples/invader/',
-            release: 0.6,
+            release: 0.3,
             volume: -2,
             onload: () => resolve(),
           }).toDestination())
@@ -82,7 +81,7 @@ export default class Instruments {
             baseUrl: './samples/shoot/',
             volume: 1,
             onload: () => resolve(),
-            release: 0.1,
+            release: 0.4,
           }).toDestination())
       )
     );
@@ -116,7 +115,7 @@ export default class Instruments {
             'G#2': 'Gs2.wav',
             'G#3': 'Gs3.wav',
           },
-          release: 1.0,
+          release: 2,
           baseUrl: './samples/guitar/',
           volume: -9,
           onload: () => resolve(),
@@ -126,17 +125,17 @@ export default class Instruments {
     promises.push(
       new Promise((resolve) => {
         const delay = new FeedbackDelay({
-          delayTime: 0.2,
+          delayTime: 0.25,
           wet: 0.2,
-          feedback: 0.1,
+          feedback: 0.2,
         }).toDestination();
         this.squareSampler = new Sampler({
           urls: {
             'D#4': 'square-Ds.wav',
           },
           baseUrl: './samples/',
-          release: 0.2,
-          volume: -9,
+          release: 0.3,
+          volume: -10,
           onload: () => resolve(),
         }).connect(delay);
       })
@@ -165,15 +164,15 @@ export default class Instruments {
       this.invaderSampler.releaseAll();
       this.invaderSampler.triggerAttackRelease(
         note,
-        BEAT_LENGTH * 0.5,
-        GameScene.musicManager.currentTime
+        BEAT_LENGTH * 0.25,
+        getContext().currentTime
       );
     } else if (instrument === InstrumentType.shoot) {
       this.shootSampler.releaseAll();
       this.shootSampler.triggerAttackRelease(
         note,
-        BEAT_LENGTH / 2,
-        GameScene.musicManager.currentTime
+        BEAT_LENGTH * 0.2,
+        getContext().currentTime
       );
     } else if (instrument === InstrumentType.kill) {
       const interval = Math.random() > 0.5 ? -2 : 2;
@@ -181,7 +180,7 @@ export default class Instruments {
 
       this.killSampler.triggerAttack(
         [note, secondNote],
-        GameScene.musicManager.currentTime
+        getContext().currentTime
       );
     } else if (instrument == InstrumentType.guitar) {
       const lowerNote = note.replace(
@@ -190,22 +189,22 @@ export default class Instruments {
       );
       this.guitarSampler.triggerAttackRelease(
         lowerNote,
-        BEAT_LENGTH * 2,
-        GameScene.musicManager.currentTime
+        BEAT_LENGTH * 0.75,
+        getContext().currentTime
       );
     } else if (instrument == InstrumentType.square) {
       const higherNote = note.replace(/[0-9]/g, '5');
       this.squareSampler.triggerAttackRelease(
         higherNote,
-        BEAT_LENGTH / 2,
-        GameScene.musicManager.currentTime
+        BEAT_LENGTH * 0.3,
+        getContext().currentTime
       );
     } else if (instrument == InstrumentType.string_pad) {
       this.stringPadSampler.releaseAll();
       this.stringPadSampler.triggerAttackRelease(
         note,
-        BEAT_LENGTH * 1.5,
-        GameScene.musicManager.currentTime
+        BEAT_LENGTH,
+        getContext().currentTime
       );
     }
   }
